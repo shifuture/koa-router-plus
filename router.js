@@ -23,10 +23,8 @@ RouterPlus.prototype.routes = function(){
 // Built contents of files
 RouterPlus.prototype.buildControllers = function(controllers, directory, resolve, reject){
     RouterPlus = this;
-    debug(directory);
     fs.readdir(directory, function (err, files) {
         if (err) return reject(err);
-        debug(files);
         async.each(files, function(item, callback){
             fs.stat(directory+'/'+item, function(err, stats){
                 if (err) reject(err);
@@ -38,7 +36,6 @@ RouterPlus.prototype.buildControllers = function(controllers, directory, resolve
                     controllers[item] = {};
                     RouterPlus.buildControllers(controllers[item], directory+"/"+item, resolve, reject);
                 }
-                debug(RouterPlus.controllers);
             })
         }, function(err){
             if (err) reject(err);
