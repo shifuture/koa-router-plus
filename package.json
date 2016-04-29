@@ -4,7 +4,6 @@
   "description": "koa router with simple controller",
   "main": "router.js",
   "scripts": {
-    "test": "DEBUG=* ./node_modules/nodemon/bin/nodemon.js ./index.js"
   },
   "keywords": [
     "koa",
@@ -20,7 +19,9 @@
     "koa-router": "^5.4.0",
     "path": "^0.12.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.9.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shifuture/koa-router-plus.git"
