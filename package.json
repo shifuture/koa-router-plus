@@ -1,6 +1,6 @@
 {
   "name": "koa-router-plus",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "koa router with simple controller",
   "main": "router.js",
   "scripts": {
@@ -19,5 +19,14 @@
     "fs": "0.0.2",
     "koa-router": "^5.4.0",
     "path": "^0.12.7"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shifuture/koa-router-plus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shifuture/koa-router-plus/issues"
+  },
+  "homepage": "https://github.com/shifuture/koa-router-plus#readme"
 }
