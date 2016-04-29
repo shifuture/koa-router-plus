@@ -34,32 +34,56 @@ app.use(router.routes());
 app.listen(3000);
 ```
 
-### lib/controller/help.js
+### lib/controller/index.js
 
 ```javascript
 module.exports = {
     index : function(ctx) {
-        ctx.body='Hello, What can I do for you?'
+        ctx.body='Welcome to drink bar, What kind of drink do you like?'
     },
     
-    serveTea : function(ctx) {
-        ctx.body='Tea, please!'
+}
+```
+
+### lib/controller/help/coffee.js
+
+```javascript
+module.exports = {
+    index : function(ctx) {
+        ctx.body='Hello, What kind of coffee do you like?'
+    },
+    
+    moreSugar: function(ctx) {
+        ctx.body='Sugar, please!'
     },
 
-    serveCoffee : function(ctx) {
-        ctx.body='Coffee, please!'
+    moreMilk: function(ctx) {
+        ctx.body='Milk, please!'
     }
+}
+```
+
+### lib/controller/help/Tea.js
+
+```javascript
+module.exports = {
+    index : function(ctx) {
+        ctx.body='Hello, What kind of tea do you like?'
+    },
+    
+    hotter: function(ctx) {
+        ctx.body='Hey, heat it please!'
+    },
 }
 ```
 
 ### Browser
 
-URL: http://localhost:3000/help, Means call help.index().
+URL: http://localhost:3000/, Means call index.index().
 
-URL: http://localhost:3000/help/serveTea, Means call help.ServTea().
+URL: http://localhost:3000/help/coffee, Means call help.coffee.index().
 
-URL: http://localhost:3000/help/serveCoffee, Means call help.ServCoffee().
-
+URL: http://localhost:3000/help/coffee/moreSugar, Means call help.coffee.moreSugar().
 
 ## Contribute
 You are welcome to contribute.
