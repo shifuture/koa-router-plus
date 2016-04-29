@@ -33,7 +33,7 @@ RouterPlus.prototype.buildControllers = function(controllers, directory, resolve
                     controllers[controllerName] = require('../.'+directory+'/'+item);
                     callback();
                 } else if ( stats.isDirectory() ) {
-                    controllers[item] = {};
+                    controllers[item] = controllers[item] || {};
                     RouterPlus.buildControllers(controllers[item], directory+"/"+item, resolve, reject);
                 }
             })
