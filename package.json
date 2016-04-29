@@ -1,5 +1,5 @@
 {
-  "name": "simple-koa-router-plus",
+  "name": "koa-router-plus",
   "version": "1.0.1",
   "description": "koa router with simple controller",
   "main": "router.js",
