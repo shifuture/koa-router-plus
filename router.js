@@ -45,7 +45,7 @@ RouterPlus.prototype.buildControllers = function(controllers, directory, resolve
 };
 
 // Return promise consisting of object
-RouterPlus.prototype.buildControllersWrapper = function(directory){
+RouterPlus.prototype.buildControllersPromise = function(directory){
     RouterPlus = this;
     RouterPlus.controllers = {}
     return new Promise(function (resolve, reject) {
@@ -59,7 +59,7 @@ RouterPlus.prototype.initialCtrl = function(){
     var RouterPlus = this;
     return function* (next) {
         var ctx = this;
-        yield RouterPlus.buildControllersWrapper(RouterPlus.directory);
+        yield RouterPlus.buildControllersPromise(RouterPlus.directory);
         ctx.controllers = RouterPlus.ctrl = RouterPlus.controllers;
         yield* next;
     };
