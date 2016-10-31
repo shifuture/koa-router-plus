@@ -33,7 +33,7 @@ RouterPlus.prototype.buildControllers = function(controllers, directory, resolve
                     controllers[controllerName] = require('../.'+directory+'/'+item);
                     callback();
                 } else if ( stats.isDirectory() ) {
-                    controllers[item] = controllers[item] || {};
+                    controllers[item] = {};
                     RouterPlus.buildControllers(controllers[item], directory+"/"+item, resolve, reject);
                 }
             })
@@ -84,30 +84,38 @@ RouterPlus.prototype.functionExists = function(funcName) {
     return typeof eval("this.ctrl."+funcName) === 'function';
 }
 
+var actionDispatcher  = function *(next){
+    var ctx=this;
+    var urlPat=/\/([^/?#.]+)/g;
+    var funcName='', funcTmp;
+    while((funcTmp=urlPat.exec(ctx.request.url))!=null) {
+        if(funcName=='') {
+            funcName += funcTmp[1];
+        } else {
+            funcName += '.'+funcTmp[1];
+        }
+    }
+    // default
+    funcName=funcName||"index.index";
+    var func=null;
+    if (RouterPlus.functionExists(funcName)) {
+        func=eval("RouterPlus.ctrl."+funcName)(ctx);
+    } else if(RouterPlus.functionExists(funcName+".index")) {
+        func=eval("RouterPlus.ctrl."+funcName+".index")(ctx);
+    } else {
+        // 404
+    }     
+    if(typeof(func)==='function' && func.constructor.name === 'GeneratorFunction') {
+        yield func;
+    }
+}
+
+
 // Inital Router and map controller 
 RouterPlus.prototype.initialize = function() {
     var RouterPlus=this;
-    this.router.get("*", function *(next){
-        var ctx=this;
-        var urlPat=/\/([^/?#.]+)/g;
-        var funcName='', funcTmp;
-        while((funcTmp=urlPat.exec(ctx.request.url))!=null) {
-            if(funcName=='') {
-                funcName += funcTmp[1];
-            } else {
-                funcName += '.'+funcTmp[1];
-            }
-        }
-        // default
-        funcName=funcName||"index.index";
-        if (RouterPlus.functionExists(funcName)) {
-            eval("RouterPlus.ctrl."+funcName)(ctx);
-        } else if(RouterPlus.functionExists(funcName+".index")) {
-            eval("RouterPlus.ctrl."+funcName+".index")(ctx);
-        } else {
-            // 404
-        }
-    })
+    this.router.get("*", actionDispatcher)
+    this.router.post("*", actionDispatcher)
     return this.initialCtrl();
 }
 
