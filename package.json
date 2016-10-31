@@ -1,6 +1,6 @@
 {
   "name": "koa-router-plus",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "koa router with simple controller",
   "main": "router.js",
   "scripts": {
