@@ -5,6 +5,7 @@ var path = require('path');
 var async = require('async');
 var debug = require('debug')('router:plus');
 var util = require('util');
+var ctrls = {};
 
 function RouterPlus(directory){
     if (!(this instanceof RouterPlus)) {
@@ -13,45 +14,28 @@ function RouterPlus(directory){
     // Looks in default "controller" directory at lib 
     this.directory = directory || './lib/controller';
     this.router = require('koa-router')();
-    this.ctrl = {}
+    ctrls = this.buildControllersSync(directory);
 };
 
 RouterPlus.prototype.routes = function(){
     return this.router.routes();
 };
 
-// Built contents of files
-RouterPlus.prototype.buildControllers = function(controllers, directory, resolve, reject){
-    RouterPlus = this;
-    fs.readdir(directory, function (err, files) {
-        if (err) return reject(err);
-        async.each(files, function(item, callback){
-            fs.stat(directory+'/'+item, function(err, stats){
-                if (err) reject(err);
-                if ( stats.isFile() ) {
-                    var controllerName = path.basename(item, '.js');
-                    controllers[controllerName] = require('../.'+directory+'/'+item);
-                    callback();
-                } else if ( stats.isDirectory() ) {
-                    controllers[item] = {};
-                    RouterPlus.buildControllers(controllers[item], directory+"/"+item, resolve, reject);
-                }
-            })
-        }, function(err){
-            if (err) reject(err);
-            resolve(controllers);
-        });
+RouterPlus.prototype.buildControllersSync = function(directory){
+    var RouterPlus = this;
+    var controllers = {};
+    var files = fs.readdirSync(directory);
+    files.forEach(function(item){
+        var stats = fs.statSync(directory+'/'+item); 
+        if ( stats.isFile() ) {
+            var controllerName = path.basename(item, '.js');
+            controllers[controllerName] = require('../.'+directory+'/'+item);
+        } else if ( stats.isDirectory() ) {
+            controllers[item] = RouterPlus.buildControllersSync(directory+"/"+item);
+        }
     });
-};
-
-// Return promise consisting of object
-RouterPlus.prototype.buildControllersPromise = function(directory){
-    RouterPlus = this;
-    RouterPlus.controllers = {}
-    return new Promise(function (resolve, reject) {
-        RouterPlus.buildControllers(RouterPlus.controllers, directory, resolve, reject);
-    });
-};
+    return controllers;
+}
 
 // Calls buildControllers to build controller object
 // and to assign object to the Koa context and to the controller object
@@ -59,14 +43,13 @@ RouterPlus.prototype.initialCtrl = function(){
     var RouterPlus = this;
     return function* (next) {
         var ctx = this;
-        yield RouterPlus.buildControllersPromise(RouterPlus.directory);
-        ctx.controllers = RouterPlus.ctrl = RouterPlus.controllers;
+        ctx.controllers = ctrls;
         yield* next;
     };
 };
 
 // Check if function exists
-RouterPlus.prototype.functionExists = function(funcName) {
+RouterPlus.functionExists = function(funcName) {
     debug("Controller info: "+ util.inspect(this.ctrl));
     debug("Function name: "+funcName);
     var funcParts = funcName.split('.');
@@ -77,11 +60,11 @@ RouterPlus.prototype.functionExists = function(funcName) {
         } else {
             funcTmp += '.'+funcParts[i];
         }
-        if( typeof eval("this.ctrl."+funcTmp) === 'undefined' ) {
+        if( typeof eval("ctrls."+funcTmp) === 'undefined' ) {
             return false;
         }
     }
-    return typeof eval("this.ctrl."+funcName) === 'function';
+    return typeof eval("ctrls."+funcName) === 'function';
 }
 
 var actionDispatcher  = function *(next){
@@ -99,9 +82,9 @@ var actionDispatcher  = function *(next){
     funcName=funcName||"index.index";
     var func=null;
     if (RouterPlus.functionExists(funcName)) {
-        func=eval("RouterPlus.ctrl."+funcName)(ctx);
+        func=eval("ctrls."+funcName)(ctx);
     } else if(RouterPlus.functionExists(funcName+".index")) {
-        func=eval("RouterPlus.ctrl."+funcName+".index")(ctx);
+        func=eval("ctrls."+funcName+".index")(ctx);
     } else {
         // 404
     }     
