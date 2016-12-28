@@ -52,19 +52,12 @@ RouterPlus.prototype.initialCtrl = function(){
 RouterPlus.functionExists = function(funcName) {
     debug("Controller info: "+ util.inspect(this.ctrl));
     debug("Function name: "+funcName);
-    var funcParts = funcName.split('.');
-    var funcTmp = ''
-    for(var i in funcParts) {
-        if(funcTmp=='') {
-            funcTmp += funcParts[i];
-        } else {
-            funcTmp += '.'+funcParts[i];
-        }
-        if( typeof eval("ctrls."+funcTmp) === 'undefined' ) {
-            return false;
-        }
+    try {
+        return typeof eval("ctrls."+funcName) === 'function';
+    } catch(err) {
+        debug(err);
+        return false;
     }
-    return typeof eval("ctrls."+funcName) === 'function';
 }
 
 var actionDispatcher  = function *(next){
